@@ -16,10 +16,9 @@ public class MathML {
     public static String xslConvert(String s, String xslpath, URIResolver uriResolver){
         TransformerFactory tFac = TransformerFactory.newInstance();
         if(uriResolver != null)  tFac.setURIResolver(uriResolver);
-        File file = new File(xslpath);
         StringWriter writer = new StringWriter();
         try {
-            StreamSource xslSource = new StreamSource(new FileInputStream(file));
+            StreamSource xslSource = new StreamSource(MathML.class.getClassLoader().getResourceAsStream(xslpath));
             Transformer t = tFac.newTransformer(xslSource);
             Source source = new StreamSource(new StringReader(s));
             Result result = new StreamResult(writer);
@@ -39,17 +38,10 @@ public class MathML {
         mml = mml.substring(mml.indexOf("?>")+2, mml.length()); //去掉xml的头节点
         URIResolver r = new URIResolver(){  //设置xls依赖文件的路径
             public Source resolve(String href, String base) {
-                File file = new File("/home/xkey/Downloads/conventer/" + href);
-                InputStream inputStream = null;
-                try {
-                    inputStream = new FileInputStream(file);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                return new StreamSource(inputStream);
+                return new StreamSource(MathML.class.getClassLoader().getResourceAsStream("conventer/" + href));
             }
         };
-        String latex = xslConvert(mml, "/home/xkey/Downloads/conventer/mmltex.xsl", r);
+        String latex = xslConvert(mml, "conventer/mmltex.xsl", r);
         if(latex != null && latex.length() > 1){
             latex = latex.substring(1, latex.length() - 1);
         }
@@ -62,7 +54,7 @@ public class MathML {
      * @return
      */
     public static String convertOMML2MML(String xml){
-        String result = xslConvert(xml, "/home/xkey/Downloads/conventer/omml2mml.xsl", null);
+        String result = xslConvert(xml, "conventer/omml2mml.xsl", null);
         return result;
     }
 }
